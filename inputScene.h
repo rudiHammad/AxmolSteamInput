@@ -6,13 +6,10 @@
  */
 #pragma once
 #include "axmol.h"
-
 #include "steam/steam_api.h"
 #include "steam/isteaminput.h"
 
-
 USING_NS_AX;
-
 
 class InputScene: public ax::Scene
 {
@@ -37,11 +34,10 @@ public:
     void onKeyPressed(ax::EventKeyboard::KeyCode code, ax::Event* event);
     void onKeyReleased(ax::EventKeyboard::KeyCode code, ax::Event* event);
 
-
+    // Steam
     InputHandle_t inputHandle;
     InputActionSetHandle_t gameplaySet;
     InputActionSetHandle_t currentGameplaySet;
-
 
 private:
     entt::registry registry;
@@ -50,11 +46,7 @@ private:
 
 bool InputScene::init()
 {
-
-    if (!Scene::init())
-    {
-        return false;
-    }
+    if (!Scene::init()) { return false; }
 
     auto visibleSize = _director->getVisibleSize();
     auto origin      = _director->getVisibleOrigin();
@@ -63,39 +55,22 @@ bool InputScene::init()
 
             
     // Check contected controllers
+    SteamInput()->RunFrame();   // RunFrame() should run before to synchronize the API. It should go at the beginning of the update loop
+                                // In case you want to evaluate things in the init, add it otherwise numControllers would return 0 here.  
     int numControllers = SteamInput()->GetConnectedControllers(&inputHandle);
     AXLOG(">>> %i", numControllers);
-
     
     scheduleUpdate();
-
     return true;
-}
-
-
-void InputScene::handleSteamInput()
-{
-       
-}
-
-
-void InputScene::testControllerIndices()
-{
-
 }
 
 
 void InputScene::update(float delta)
 {
-    if (SteamInput())
-    {
-        SteamInput()->RunFrame(); // Update Steam Input state
-    }
-
+    if (SteamInput()) { SteamInput()->RunFrame(); } // Update Steam Input state 
 
     int numControllers = SteamInput()->GetConnectedControllers(&inputHandle);
     //AXLOG(">>> %i controllers connected.", numControllers);
-
 
     // Ensure we have the correct action set handle
     gameplaySet = SteamInput()->GetActionSetHandle("ship_controls");
