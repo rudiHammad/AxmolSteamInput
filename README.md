@@ -24,8 +24,8 @@ is a free app with id 480 used for testing. So the content od steam_appid.txt in
 In you library search you app, in this case Spacewar, right-click |the game mange | controller layout. This will lead you to this interface
 ![inputMenu](https://github.com/user-attachments/assets/e3957776-1c0e-41ea-869a-291549ac046f)
 
-Here you can create the layout that maps each button, pad, etc.. to an action. You can find more info on youtube about, but in a nutt shell
-once you do the layout, you can export it, and it will create the vdf file int the following directory:
+Here you can create the layout that maps each button, pad, etc.. to an action. You can find more info here https://www.youtube.com/watch?v=7I4SiAiKqqk&t=2538s,
+but in a nutt shell once you do the layout, you can export it, and it will create the vdf file int the following directory:
 ![steamVDB](https://github.com/user-attachments/assets/d4c0d750-e518-41e8-aa33-263da97854ef)
 
 
