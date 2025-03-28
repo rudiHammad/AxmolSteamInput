@@ -1,6 +1,6 @@
 # AxmolSteamInput
 
-## 1. install the sdk
+# 1. install the sdk
 For this you have to register in steamworks https://partner.steamgames.com/. From there you download the last sdk. 
 
 # 2. Setup visual studio
