@@ -51,6 +51,7 @@ private:
 bool InputScene::init()
 {
    
+
     if (!Scene::init())
     {
         return false;
@@ -73,10 +74,13 @@ bool InputScene::init()
     spriteA->setPosition(visibleSize/2);
     addChild(spriteA);
 
+
     scheduleUpdate();
     
     return true;
 }
+
+
 
 void InputScene::update(float delta)
 {
@@ -95,7 +99,14 @@ void InputScene::update(float delta)
         if (fireActionData.bState)
         {
             posXTest += delta * 20;
+            // Apply basic vibration (main motors)
+            SteamInput()->TriggerVibration(inputHandle, 10000, 10000);
+            // There are more types like TriggerVibrationExtended(...) that sets rumble on the triggers motors too, etc...
             AXLOG("X fired");     
+        }
+        else
+        {
+            SteamInput()->TriggerVibration(inputHandle, 0, 0);    // there is probably a better way than a else
         }
     }
     
