@@ -43,5 +43,5 @@ when the x button is pressed.
 
 
 # Finicky stuff
-1. Currently you need to click outside with the mouse ourside the viewport, and then click back in it, otherwise it won't trigger the inputs...
+1. Currently you need to click outside the viewport with the mouse, and then click back in it, otherwise it won't trigger the inputs...
  could be related to steam big picture mode? 
