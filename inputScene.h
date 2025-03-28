@@ -6,10 +6,13 @@
  */
 #pragma once
 #include "axmol.h"
+
 #include "steam/steam_api.h"
 #include "steam/isteaminput.h"
+#include <chrono>
 
 USING_NS_AX;
+
 
 class InputScene: public ax::Scene
 {
@@ -34,10 +37,11 @@ public:
     void onKeyPressed(ax::EventKeyboard::KeyCode code, ax::Event* event);
     void onKeyReleased(ax::EventKeyboard::KeyCode code, ax::Event* event);
 
-    // Steam
-    InputHandle_t inputHandle;
-    InputActionSetHandle_t gameplaySet;
-    InputActionSetHandle_t currentGameplaySet;
+    InputHandle_t inputHandle = 0;
+    InputAnalogActionHandle_t inputAnalogueHandle = 1;
+    InputDigitalActionHandle_t inputDigitalActionHandle = 2;
+
+    Sprite* spriteA;
 
 private:
     entt::registry registry;
@@ -46,48 +50,53 @@ private:
 
 bool InputScene::init()
 {
-    if (!Scene::init()) { return false; }
+   
+    if (!Scene::init())
+    {
+        return false;
+    }
 
     auto visibleSize = _director->getVisibleSize();
     auto origin      = _director->getVisibleOrigin();
     auto safeArea    = _director->getSafeAreaRect();
     auto safeOrigin  = safeArea.origin;
 
-            
-    // Check contected controllers
-    SteamInput()->RunFrame();   // RunFrame() should run before to synchronize the API. It should go at the beginning of the update loop
-                                // In case you want to evaluate things in the init, add it otherwise numControllers would return 0 here.  
+    // IMPORTANT: RUN THIS TWO LINES BEFORE ANYTHING
+    SteamInput()->RunFrame();
     int numControllers = SteamInput()->GetConnectedControllers(&inputHandle);
-    AXLOG(">>> %i", numControllers);
-    
+    AXLOG("Connected controllers: %i", numControllers);
+    // without it this it won't connect the controller (that's a terrible function name as it leads to think that 
+    // it just gets the connected controls. Also, not running GetConnectController() at the beginning make spriteA
+    // nullptr in the loop... WTF????) 
+   
+    spriteA = Sprite::create("HelloWorld.png");
+    spriteA->setPosition(visibleSize/2);
+    addChild(spriteA);
+
     scheduleUpdate();
+    
     return true;
 }
 
-
 void InputScene::update(float delta)
 {
-    if (SteamInput()) { SteamInput()->RunFrame(); } // Update Steam Input state 
+    static float posXTest = 0.0;        // Quick static var for testing
+    spriteA->setPositionX(posXTest);
 
-    int numControllers = SteamInput()->GetConnectedControllers(&inputHandle);
-    //AXLOG(">>> %i controllers connected.", numControllers);
-
-    // Ensure we have the correct action set handle
-    gameplaySet = SteamInput()->GetActionSetHandle("ship_controls");
-    if (gameplaySet != 0) {
-        SteamInput()->ActivateActionSet(0, gameplaySet);
-    }
-
-    // Get the handle for the 'fire_lasers' button action (from the vdf)
-    InputDigitalActionHandle_t fireAction = SteamInput()->GetDigitalActionHandle("fire_lasers");
+    SteamInput()->RunFrame(); // Update Steam Input state
     
-    if (fireAction != 0) {
-        // Get the action data (for a button action, not a trigger)
-        InputDigitalActionData_t actionData = SteamInput()->GetDigitalActionData(inputHandle, fireAction);
-        
-        // Check if the button is pressed (bState will be true if pressed)
-        if (actionData.bState) {
-            AXLOG(">>> Fire button pressed!");
+    auto actionSetHandle = SteamInput()->GetActionSetHandle("ship_controls");
+    
+    auto fireActionHndl =  SteamInput()->GetDigitalActionHandle("fire_lasers");
+
+    if (fireActionHndl)
+    {
+        auto fireActionData = SteamInput()->GetDigitalActionData(inputHandle, fireActionHndl);
+        if (fireActionData.bState)
+        {
+            posXTest += delta * 20;
+            AXLOG("X fired");     
         }
     }
+    
 }
