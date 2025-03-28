@@ -36,6 +36,7 @@ when the x button is pressed.
 
 # Important consideration
 1. you should have steam openned
-2. you should make sure that you have applied the layout
+2. you probaly want to disable steam input when you are in you desktop. For this go to big picture mode | setting | controller | Desktop Layour | edit | disable steam input 
+3. you should make sure that you have applied the layout
 
 ![Capture](https://github.com/user-attachments/assets/9b680390-4916-4d23-87e7-b551e2a93dcc)
