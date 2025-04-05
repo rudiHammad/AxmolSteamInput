@@ -14,7 +14,7 @@
 USING_NS_AX;
 
 
-class InputScene: public ax::Scene
+class SteamInputScene: public ax::Scene
 {
     enum class GameState
     {
@@ -37,7 +37,7 @@ public:
     void onKeyPressed(ax::EventKeyboard::KeyCode code, ax::Event* event);
     void onKeyReleased(ax::EventKeyboard::KeyCode code, ax::Event* event);
 
-    InputHandle_t inputHandle = 0;
+    InputHandle_t inputHandle;
     InputAnalogActionHandle_t inputAnalogueHandle = 1;
     InputDigitalActionHandle_t inputDigitalActionHandle = 2;
 
@@ -48,7 +48,7 @@ private:
 };
 
 
-bool InputScene::init()
+bool SteamInputScene::init()
 {
    
 
@@ -61,19 +61,18 @@ bool InputScene::init()
     auto origin      = _director->getVisibleOrigin();
     auto safeArea    = _director->getSafeAreaRect();
     auto safeOrigin  = safeArea.origin;
+    
 
     // IMPORTANT: RUN THIS TWO LINES BEFORE ANYTHING
-    SteamInput()->RunFrame();
-    int numControllers = SteamInput()->GetConnectedControllers(&inputHandle);
-    AXLOG("Connected controllers: %i", numControllers);
-    // without it this it won't connect the controller (that's a terrible function name as it leads to think that 
-    // it just gets the connected controls. Also, not running GetConnectController() at the beginning make spriteA
-    // nullptr in the loop... WTF????) 
-   
+    SteamInput()->RunFrame();       // IMPORTANT: RunFrame() or it wont synchronize to detect controls
+    InputHandle_t *inputHandles = new InputHandle_t[ STEAM_INPUT_MAX_COUNT ];
+    auto connectedControls = SteamInput()->GetConnectedControllers( inputHandles );
+    if (connectedControls > 0) { inputHandle = inputHandles[0]; }
+    else { ">>> No connected controls found"; }
+
     spriteA = Sprite::create("HelloWorld.png");
     spriteA->setPosition(visibleSize/2);
     addChild(spriteA);
-
 
     scheduleUpdate();
     
@@ -82,15 +81,13 @@ bool InputScene::init()
 
 
 
-void InputScene::update(float delta)
+void SteamInputScene::update(float delta)
 {
     static float posXTest = 0.0;        // Quick static var for testing
     spriteA->setPositionX(posXTest);
 
     SteamInput()->RunFrame(); // Update Steam Input state
-    
     auto actionSetHandle = SteamInput()->GetActionSetHandle("ship_controls");
-    
     auto fireActionHndl =  SteamInput()->GetDigitalActionHandle("fire_lasers");
 
     if (fireActionHndl)
@@ -106,7 +103,7 @@ void InputScene::update(float delta)
         }
         else
         {
-            SteamInput()->TriggerVibration(inputHandle, 0, 0);    // there is probably a better way than a else
+            SteamInput()->TriggerVibration(inputHandle, 0, 0);
         }
     }
     
